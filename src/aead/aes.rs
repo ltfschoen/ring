@@ -17,7 +17,7 @@ use super::{
     Block, Direction, BLOCK_LEN,
 };
 
-#[cfg(not(target_arch = "aarch64"))]
+#[cfg(not(any(target_arch = "aarch64", target_arch = "s390x")))]
 use super::shift;
 
 use crate::{bits::BitLength, c, cpu, endian::*, error, polyfill};
@@ -83,7 +83,7 @@ impl Key {
                 })?;
             }
 
-            #[cfg(not(target_arch = "aarch64"))]
+            #[cfg(not(any(target_arch = "aarch64", target_arch = "s390x")))]
             _ => {
                 extern "C" {
                     fn GFp_aes_nohw_set_encrypt_key(
@@ -133,7 +133,7 @@ impl Key {
                 }
             }
 
-            #[cfg(not(target_arch = "aarch64"))]
+            #[cfg(not(any(target_arch = "aarch64", target_arch = "s390x")))]
             _ => {
                 extern "C" {
                     fn GFp_aes_nohw_encrypt(a: *const Block, r: *mut Block, key: &AES_KEY);
@@ -226,7 +226,7 @@ impl Key {
                 ctr.increment_by_less_safe(blocks_u32);
             }
 
-            #[cfg(not(target_arch = "aarch64"))]
+            #[cfg(not(any(target_arch = "aarch64", target_arch = "s390x")))]
             _ => {
                 shift::shift_full_blocks(in_out, in_prefix_len, |input| {
                     self.encrypt_iv_xor_block(ctr.increment(), Block::from(input))
@@ -288,7 +288,7 @@ pub enum Implementation {
     #[cfg(target_arch = "arm")]
     BSAES = 3,
 
-    #[cfg(not(target_arch = "aarch64"))]
+    #[cfg(not(any(target_arch = "aarch64", target_arch = "s390x")))]
     Fallback = 4,
 }
 
@@ -316,7 +316,12 @@ fn detect_implementation(cpu_features: cpu::Features) -> Implementation {
         Implementation::VPAES
     }
 
-    #[cfg(not(target_arch = "aarch64"))]
+    #[cfg(target_arch = "s390x")]
+    {
+        Implementation::HWAES
+    }
+
+    #[cfg(not(any(target_arch = "aarch64", target_arch = "s390x")))]
     {
         Implementation::Fallback
     }

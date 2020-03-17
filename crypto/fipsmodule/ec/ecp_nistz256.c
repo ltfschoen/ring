@@ -76,7 +76,7 @@ static void copy_conditional(Limb dst[P256_LIMBS],
 void GFp_nistz256_point_double(P256_POINT *r, const P256_POINT *a);
 void GFp_nistz256_point_add_affine(P256_POINT *r, const P256_POINT *a,
                                    const P256_POINT_AFFINE *b);
-#if defined(OPENSSL_X86_64)
+#if defined(OPENSSL_X86_64) || defined(OPENSSL_S390X)
 void GFp_nistz256_point_add(P256_POINT *r, const P256_POINT *a,
                             const P256_POINT *b);
 #else

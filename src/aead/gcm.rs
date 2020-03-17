@@ -37,6 +37,7 @@ impl Key {
                 }
             }
 
+            #[cfg(not(target_arch = "s390x"))]
             Implementation::CLMUL => {
                 extern "C" {
                     fn GFp_gcm_init_clmul(key: &mut Key, h: &[u64; 2]);
@@ -119,6 +120,7 @@ impl Context {
                 }
             }
 
+            #[cfg(not(target_arch = "s390x"))]
             Implementation::CLMUL => {
                 extern "C" {
                     fn GFp_gcm_ghash_clmul(
@@ -171,6 +173,7 @@ impl Context {
         let key_aliasing: *const GCM128_KEY = &self.inner.key;
 
         match detect_implementation(self.cpu_features) {
+            #[cfg(not(target_arch = "s390x"))]
             Implementation::CLMUL => {
                 extern "C" {
                     fn GFp_gcm_gmult_clmul(ctx: &mut Context, Htable: *const GCM128_KEY);
@@ -243,6 +246,7 @@ struct GCM128_CONTEXT {
 }
 
 enum Implementation {
+    #[cfg(not(target_arch = "s390x"))]
     CLMUL,
 
     #[cfg(any(target_arch = "aarch64", target_arch = "arm"))]
@@ -257,7 +261,10 @@ fn detect_implementation(cpu: cpu::Features) -> Implementation {
     if (cpu::intel::FXSR.available(cpu) && cpu::intel::PCLMULQDQ.available(cpu))
         || cpu::arm::PMULL.available(cpu)
     {
-        return Implementation::CLMUL;
+        #[cfg(not(target_arch = "s390x"))]
+        {
+            return Implementation::CLMUL;
+        }
     }
 
     #[cfg(target_arch = "arm")]

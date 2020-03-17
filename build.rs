@@ -47,6 +47,7 @@ const X86: &str = "x86";
 const X86_64: &str = "x86_64";
 const AARCH64: &str = "aarch64";
 const ARM: &str = "arm";
+const S390X: &str = "s390x";
 const NEVER: &str = "Don't ever build this file.";
 
 #[cfg_attr(rustfmt, rustfmt_skip)]
@@ -110,6 +111,14 @@ const RING_SRCS: &[(&[&str], &str)] = &[
     (&[AARCH64], "crypto/fipsmodule/modes/asm/ghash-neon-armv8.pl"),
     (&[AARCH64], "crypto/poly1305/asm/poly1305-armv8.pl"),
     (&[AARCH64], SHA512_ARMV8),
+
+    (&[S390X], "crypto/cpu-s390x.c"),
+    (&[S390X], "crypto/fipsmodule/aes/asm/aes-s390x.pl"),
+    (&[S390X], "crypto/fipsmodule/bn/asm/s390x-mont.pl"),
+    (&[S390X], "crypto/fipsmodule/modes/asm/ghash-s390x.pl"),
+    (&[S390X], "crypto/chacha/asm/chacha-s390x.pl"),
+    (&[S390X], "crypto/poly1305/asm/poly1305-s390x.pl"),
+    (&[S390X], SHA512_S390X),
 ];
 
 const SHA256_X86_64: &str = "crypto/fipsmodule/sha/asm/sha256-x86_64.pl";
@@ -117,6 +126,9 @@ const SHA512_X86_64: &str = "crypto/fipsmodule/sha/asm/sha512-x86_64.pl";
 
 const SHA256_ARMV8: &str = "crypto/fipsmodule/sha/asm/sha256-armv8.pl";
 const SHA512_ARMV8: &str = "crypto/fipsmodule/sha/asm/sha512-armv8.pl";
+
+const SHA256_S390X: &str = "crypto/fipsmodule/sha/asm/sha256-s390x.pl";
+const SHA512_S390X: &str = "crypto/fipsmodule/sha/asm/sha512-s390x.pl";
 
 const RING_TEST_SRCS: &[&str] = &[("crypto/constant_time_test.c")];
 
@@ -137,6 +149,7 @@ const RING_INCLUDES: &[&str] =
       "include/GFp/base.h",
       "include/GFp/cpu.h",
       "include/GFp/mem.h",
+      "include/GFp/s390x_arch.h",
       "include/GFp/type_check.h",
       "third_party/fiat/curve25519_32.h",
       "third_party/fiat/curve25519_64.h",
@@ -147,6 +160,7 @@ const RING_INCLUDES: &[&str] =
 #[cfg_attr(rustfmt, rustfmt_skip)]
 const RING_PERL_INCLUDES: &[&str] =
     &["crypto/perlasm/arm-xlate.pl",
+      "crypto/perlasm/s390x.pm",
       "crypto/perlasm/x86gas.pl",
       "crypto/perlasm/x86nasm.pl",
       "crypto/perlasm/x86asm.pl",
@@ -240,6 +254,7 @@ const ASM_TARGETS: &[(&str, Option<&str>, &str)] = &[
     ("x86", None, "elf"),
     ("arm", Some("ios"), "ios32"),
     ("arm", None, "linux32"),
+    ("s390x", None, "64"),
 ];
 
 const WINDOWS: &str = "windows";
@@ -681,6 +696,7 @@ fn perlasm_src_dsts(
         };
         maybe_synthesize(SHA512_X86_64, SHA256_X86_64);
         maybe_synthesize(SHA512_ARMV8, SHA256_ARMV8);
+        maybe_synthesize(SHA512_S390X, SHA256_S390X);
     }
 
     src_dsts

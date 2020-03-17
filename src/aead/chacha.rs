@@ -77,7 +77,7 @@ impl Key {
         //
         // https://rt.openssl.org/Ticket/Display.html?id=4362
         let len = in_out.len() - in_prefix_len;
-        if cfg!(any(target_arch = "arm", target_arch = "x86")) && in_prefix_len != 0 {
+        if cfg!(any(target_arch = "arm", target_arch = "x86", target_arch = "s390x")) && in_prefix_len != 0 {
             // TODO: replace with `in_out.copy_within(in_prefix_len.., 0)`
             // See https://github.com/rust-lang/rust/issues/54236.
             unsafe {
@@ -214,7 +214,7 @@ mod tests {
 
         // Do not test offset buffers for x86 and ARM architectures (see above
         // for rationale).
-        let max_offset = if cfg!(any(target_arch = "x86", target_arch = "arm")) {
+        let max_offset = if cfg!(any(target_arch = "x86", target_arch = "arm", target_arch = "s390x")) {
             0
         } else {
             259

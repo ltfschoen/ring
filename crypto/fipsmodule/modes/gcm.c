@@ -98,13 +98,19 @@ void GFp_gcm_init_4bit(u128 Htable[16], const uint64_t H[2]) {
   Htable[15].hi = V.hi ^ Htable[7].hi, Htable[15].lo = V.lo ^ Htable[7].lo;
 }
 
+#if !defined(OPENSSL_S390X)
+
 static const size_t rem_4bit[16] = {
     PACK(0x0000), PACK(0x1C20), PACK(0x3840), PACK(0x2460),
     PACK(0x7080), PACK(0x6CA0), PACK(0x48C0), PACK(0x54E0),
     PACK(0xE100), PACK(0xFD20), PACK(0xD940), PACK(0xC560),
     PACK(0x9180), PACK(0x8DA0), PACK(0xA9C0), PACK(0xB5E0)};
 
+#endif
+
 void GFp_gcm_gmult_4bit(uint8_t Xi[16], const u128 Htable[16]);
+
+#if !defined(OPENSSL_S390X)
 
 void GFp_gcm_gmult_4bit(uint8_t Xi[16], const u128 Htable[16]) {
   u128 Z;
@@ -156,9 +162,12 @@ void GFp_gcm_gmult_4bit(uint8_t Xi[16], const u128 Htable[16]) {
   to_be_u64_ptr(Xi + 8, Z.lo);
 }
 
+#endif
+
 void GFp_gcm_ghash_4bit(uint8_t Xi[16], const u128 Htable[16],
                         const uint8_t *inp, size_t len);
 
+#if !defined(OPENSSL_S390X)
 // Streamed gcm_mult_4bit, see GFp_gcm128_[en|de]crypt for
 // details... Compiler-generated code doesn't seem to give any
 // performance improvement, at least not on x86[_64]. It's here
@@ -219,3 +228,5 @@ void GFp_gcm_ghash_4bit(uint8_t Xi[16], const u128 Htable[16],
     to_be_u64_ptr(Xi + 8, Z.lo);
   } while (inp += 16, len -= 16);
 }
+
+#endif
